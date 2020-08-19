@@ -25,14 +25,26 @@ navigator.mediaDevices.getUserMedia({    //it is promise which gets video and au
     socket.on('user-connected', (userId) => {     //new user connection
         connectToNewUser(userId,stream);
     })
+    let userMessages = $('input')
+    console.log(userMessages.val());
+
+$('html').keydown(e=>{
+    if(e.which == 13 && userMessages.val().lenghth !== 0){
+        console.log(userMessages.val());
+        socket.emit('message',userMessages.val());
+        userMessages.val('');
+    }
+})
+
+socket.on('createMessage', message =>{
+    $('ul').append(`<li class='messages'>user:<br/>${message}</li>`)
+})
+    
 })
 
 peer.on('open', id =>{
     socket.emit('join-room', room_id, id)
 })
-socket.emit('join-room', room_id)
-
-
 
 const connectToNewUser = (userId, stream) => {      //
     const call = peer.call(userId,stream)
@@ -41,8 +53,6 @@ const connectToNewUser = (userId, stream) => {      //
         addVideoStream(video, userVideoStream)
     })
 }
-
-
 
 const addVideoStream = (video , stream) =>{
     video.srcObject = stream;
